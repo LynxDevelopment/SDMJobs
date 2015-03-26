@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-20d [%t] %-5p %-15c - %-10M - %m%n"/>
+		</layout>
+		<param name="File" value="logs/job.log"/>
+		<param name="Append" value="true"/>
+		<param name="MaxFileSize" value="1MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<param name="Threshold" value="DEBUG"/>
+	</appender>
+
+	<appender name="DEVELOP" class="org.apache.log4j.RollingFileAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-20d [%t] %-5p %-15c - %-10M - %m%n"/>
+		</layout>
+		<param name="File" value="logs/jobDevelop.log"/>
+		<param name="Append" value="true"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<param name="Threshold" value="DEBUG"/>
+	</appender>
+
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-20d [%t] %-5p %-15c - %-10M - %m%n"/>
+		</layout>
+		<param name="Threshold" value="DEBUG"/>
+	</appender>
+	
+	<appender name="HIBERNATE_TYPE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-20d [%t] %-5p %-15c - %-10M - %m%n"/>
+		</layout>
+		<param name="Threshold" value="DEBUG"/>
+	</appender>
+	
+	<root>
+		<appender-ref ref="FILE"/>
+		<appender-ref ref="DEVELOP"/>
+		<appender-ref ref="CONSOLE"/>
+	</root>
+
+	<category name="com.lynxspa">
+		<priority value="DEBUG" />
+		<appender-ref ref="DEVELOP"/>
+	</category>
+	
+	<category name="org.hibernate.type">
+		<priority value="DEBUG" />
+		<appender-ref ref="HIBERNATE_TYPE"/>
+	</category>
+</log4j:configuration>
