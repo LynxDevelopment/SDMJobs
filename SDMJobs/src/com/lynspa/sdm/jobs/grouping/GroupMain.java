@@ -3,11 +3,14 @@ package com.lynspa.sdm.jobs.grouping;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
+import com.lynspa.sdm.jobs.normalization.BeanShellStaticDataNormalizeProcessor;
 import com.lynxspa.entities.application.flow.Flow;
 import com.lynxspa.entities.application.flow.State;
 import com.lynxspa.entities.application.flow.StateId;
@@ -23,6 +26,8 @@ public class GroupMain {
 	static SessionFactory sessionFactory = null;
 	static Session statefullSession=null;
 	
+	private static Logger logger = Logger.getLogger(GroupMain.class);
+	
 	@SuppressWarnings({ "unchecked" })
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -35,17 +40,19 @@ public class GroupMain {
 		
 		try{
 			//Rellenar ConcatField para los que tengan vacíos
-			System.out.println("Rellenar ConcatField");
+			logger.info("Rellenar ConcatField");
 			sessionFactory = new AnnotationConfiguration().configure().buildSessionFactory();
 			statefullSession = sessionFactory.openSession();
 			HibernateUtils.beguinTransaction(statefullSession);
 			//for(SecurityAsset sa:(List<SecurityAsset>)statefullSession.createQuery("select sa from SecurityAsset sa where sa.concatField is null order by sa.id asc").list()){
+			// TODO alberto modify to make test
+			// for(SecurityAsset sa:(List<SecurityAsset>)statefullSession.createQuery("select sa from SecurityAsset sa where sa.completed is true order by sa.id asc").list()){
 			for(SecurityAsset sa:(List<SecurityAsset>)statefullSession.createQuery("select sa from SecurityAsset sa where sa.completed is true order by sa.id asc").list()){
-				System.out.println("sa.getIsin():"+sa.getIsin());
-				System.out.println("sa.getName():"+sa.getName());
-				System.out.println("sa.getCusip():"+sa.getCusip());
-				System.out.println("sa.getSedol():"+sa.getSedol());
-				System.out.println("sa.getCountry():"+sa.getCountry());
+				logger.info("sa.getIsin():"+sa.getIsin());
+				logger.info("sa.getName():"+sa.getName());
+				logger.info("sa.getCusip():"+sa.getCusip());
+				logger.info("sa.getSedol():"+sa.getSedol());
+				logger.info("sa.getCountry():"+sa.getCountry());
 				if(sa.getConcatField()==null || sa.getConcatField().compareToIgnoreCase("")==0){
 					sa.setConcatField(sa.getIsin()+separador+sa.getName()+separador+sa.getCusip()+separador+sa.getSedol()+separador+sa.getCountry());
 				}
@@ -54,9 +61,9 @@ public class GroupMain {
 			}
 			HibernateUtils.commitTransaction(statefullSession);
 			statefullSession.flush();
-
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
 			e.printStackTrace();
 		}finally{
 			if(statefullSession!=null){
@@ -74,18 +81,24 @@ public class GroupMain {
 		Query rq = null;
 		try{
 			//Agrupar registros parecidos
-			System.out.println("Agrupación");
+			logger.info("Agrupación ID:" + sa.getId() + " ISIN:" + sa.getIsin() );
 			//Agrupar los registros con un 80%
 			int apariencias = 0;
 			int totalCampos = 0;
 			SecurityAsset saRowEncontrado;
 			if(sa.getConcatField().contains(separador)){
 				//rq = statefullSession.createQuery("select sa from SecurityAsset sa where sa.concatField is not null and sa.id<>:id order by sa.id asc");
+				// TODO alberto modify to test it
+				//rq = statefullSession.createQuery("select sa from SecurityAsset sa where sa.completed is true and sa.operationStatus.state.id.code = :state order by sa.id asc");
 				rq = statefullSession.createQuery("select sa from SecurityAsset sa where sa.completed is true and sa.operationStatus.state.id.code = :state order by sa.id asc");
 				//rq.setLong("id", sa.getId());
-				rq.setString("state", StaticStatesSTATICMESSAGEFlow.MTCH.getId());
+				// TODO alberto modify to test it
+				//rq.setString("state", StaticStatesSTATICMESSAGEFlow.MTCH.getId());
+				rq.setString("state", StaticStatesSTATICMESSAGEFlow.MTCH.getId()); // update
 				if(rq.list().size()>0){
 					for(SecurityAsset saRow:(List<SecurityAsset>)rq.list()){
+						logger.info("entra en for, row: " + saRow.getIsin());
+						
 						//Dividimos el campo con el separador
 						totalCampos = 0;
 						apariencias = 0;
@@ -93,10 +106,10 @@ public class GroupMain {
 						porcentajeAgrupacionActual = getPercentageGrouping(sa, saRow);
 						// Si encontramos apariencias de un 80%
 						if (porcentajeAgrupacionActual>=porcentajeAgrupacion && (porcentajeAgrupacionActual > sa.getPercentageGrouping())){
-							System.out.println("% mayor q 80");
+							logger.info("% mayor q 80");
 							sa.setPercentageGrouping(porcentajeAgrupacionActual);
 							//Si tiene groupId lo utilizamos
-							System.out.println("saRow.getGroupId():"+saRow.getGroupId());
+							logger.info("saRow.getGroupId():"+saRow.getGroupId());
 							if(saRow.getGroupId()!=0){
 								sa.setGroupId(saRow.getGroupId());
 								sa.setOperationStatus(getOperationStatus(StaticStatesSTATICMESSAGEFlow.MTCH,statefullSession));
@@ -111,6 +124,9 @@ public class GroupMain {
 								saRow.setOperationStatus(getOperationStatus(StaticStatesSTATICMESSAGEFlow.MTCH,statefullSession));
 								sa.setGroupId(groupId);
 								sa.setOperationStatus(getOperationStatus(StaticStatesSTATICMESSAGEFlow.MTCH,statefullSession));
+								
+								logger.info("Se updatea row " + saRow.getIsin() + " id " + groupId);
+								
 								// Se actualiza el registro comparador
 								statefullSession.update(saRow);
 							}
@@ -119,9 +135,11 @@ public class GroupMain {
 				}
 			}else{
 				// ERROR NO TIENE SEPARADOR
+				logger.error("ERROR NO TIENE SEPARADOR");
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
 			e.printStackTrace();
 			if(statefullSession!=null){
 				statefullSession.close();
@@ -139,14 +157,15 @@ public class GroupMain {
 		try {
 			it = statefullSession.createQuery("select sa.groupId from SecurityAsset sa order by groupId desc").iterate();
 			if(it.hasNext()){
-				System.out.println("existe groupId");
+				logger.info("existe groupId");
 				id = it.next() + 1;
 			}else {
-				System.out.println("No existe groupId");
+				logger.info("No existe groupId");
 				id = 1;
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
 			e.printStackTrace();
 			if(statefullSession!=null){
 				statefullSession.close();
@@ -178,15 +197,16 @@ public class GroupMain {
 					}
 				}
 				float resultadoDivision = (apariencias/totalCampos);
-				System.out.println("resultadoDivision:"+resultadoDivision);
+				logger.info("resultadoDivision:"+resultadoDivision);
 				percentageGrouping = Math.round((apariencias/totalCampos)*100);
-				System.out.println("percentageGrouping:"+percentageGrouping);
+				logger.info("percentageGrouping:"+percentageGrouping);
 			}
-			System.out.println("totalCampos:"+totalCampos+" apariencias:"+apariencias);
-			System.out.println("% "+(int)percentageGrouping);
+			logger.info("totalCampos:"+totalCampos+" apariencias:"+apariencias);
+			logger.info("% "+(int)percentageGrouping);
 			return (int) percentageGrouping;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			logger.error(e.getMessage());
 			e.printStackTrace();
 			if(statefullSession!=null){
 				statefullSession.close();

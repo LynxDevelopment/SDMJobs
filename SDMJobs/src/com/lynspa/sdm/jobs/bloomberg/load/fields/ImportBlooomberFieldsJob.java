@@ -24,7 +24,7 @@ public class ImportBlooomberFieldsJob {
 			fileTemp = new File(_file.getAbsolutePath()+".tmp");
 			_file.renameTo(fileTemp);
 			process.loadFieldsFromFile(fileTemp, _session, statelessSession, _user);
-
+			
 		}catch (FileNotFoundException e) {
 			error = true;
 			throw new FPMException(BasicErrorDict.FILENOTEXIST,e);
@@ -35,11 +35,13 @@ public class ImportBlooomberFieldsJob {
 			error = true;
 			throw new FPMException(BasicErrorDict.UNEXPECTED_ERROR,e);
 		}finally{
-			if (error)
+			if (error) {
 				fileTemp.renameTo(new File(fileTemp.getAbsolutePath()+".error"));
-			else
+			} else {
 				fileTemp.renameTo(new File(fileTemp.getAbsolutePath()+".done"));
+			}
 		}
+		
 		return reply;
 	}
 }

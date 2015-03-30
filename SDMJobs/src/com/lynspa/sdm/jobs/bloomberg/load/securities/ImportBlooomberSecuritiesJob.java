@@ -25,7 +25,7 @@ public class ImportBlooomberSecuritiesJob {
 			fileTemp = new File(_file.getAbsolutePath()+".tmp");
 			_file.renameTo(fileTemp);
 			process.process(_session, statelessSession,fileTemp, _user, _locale);
-
+			
 		}catch (FileNotFoundException e) {
 			error = true;
 			throw new FPMException(BasicErrorDict.FILENOTEXIST,e);
@@ -37,13 +37,25 @@ public class ImportBlooomberSecuritiesJob {
 			error = true;
 			throw new FPMException(BasicErrorDict.UNEXPECTED_ERROR,e);
 		}finally{
+			
 			if (error){
 				fileTemp.renameTo(new File(fileTemp.getAbsolutePath()+".error"));
 			}else{
 				System.out.println("Renombrando fichero "+fileTemp.getAbsolutePath());
+				
 				fileTemp.renameTo(new File(fileTemp.getAbsolutePath()+".done"));
+//				if (!flag) {
+//					Path source = FileSystems.getDefault().getPath(fileTemp.getAbsolutePath());
+//					Path dest = FileSystems.getDefault().getPath(fileTemp.getAbsolutePath()+".done");
+//					try {
+//					Files.move(source, dest);
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
 			}
 		}
+		
 		return reply;
 	}
 }

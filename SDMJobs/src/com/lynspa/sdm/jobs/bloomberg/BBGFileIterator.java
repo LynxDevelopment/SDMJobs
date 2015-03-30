@@ -44,6 +44,16 @@ public class BBGFileIterator implements Iterator {
 	
 	@Override
 	public boolean hasNext() {
+		try {
+			 if( nextLine == null) {
+				 if (buffer != null) {
+					 buffer.close();
+				 }
+		       }
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		
 		
 		return nextLine != null;
 	}
