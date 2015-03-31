@@ -84,7 +84,7 @@ public class SDMJobProcessor {
 		}catch(Exception e){
 			System.out.println("Error "+e);
 		}finally{
-			finalizeProcess();
+			//finalizeProcess();
 		}
 		
 		return result;

@@ -22,12 +22,12 @@ public class TesterJobs {
 		logger.info("logger: "+ logger.getLevel() + " " + logger.getName() + " " + logger.isDebugEnabled());
 		System.out.println("logger: "+ logger.getLevel() + " " + logger.getName() + " " + logger.isDebugEnabled());
 		
-		File hibernateFile = new File ("E:/workspace_sdm/SDM/SDMEntities/src/hibernate.cfg.xml");
+		File hibernateFile = new File ("H:/GitHub/SDMEntities/SDMEntities/hibernate.cfg.xml");
 		sessionFactory = new AnnotationConfiguration().configure(hibernateFile).buildSessionFactory();
 		
 		Session session = sessionFactory.openSession();
 		StatelessSession statelessSession = sessionFactory.openStatelessSession();
-		
+		/*
 		//Probando normalizaciones
 		BeanShellStaticDataNormalizeProcessor normalizer = new BeanShellStaticDataNormalizeProcessor();
 		try {
@@ -36,7 +36,8 @@ public class TesterJobs {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		*/
+		System.out.println("FIN");
 	}
 
 }
