@@ -116,8 +116,9 @@ public class CargaFieldsBBG {
 		}catch(Exception e){
 			System.err.println("Error "+e.getMessage());
 		}finally{
-			HibernateUtils.close(statelessSession);
-			reader.close();
+			//TODO descomentar;
+//			HibernateUtils.close(statelessSession);
+//			reader.close();
 		}
 	}
 	
@@ -131,9 +132,6 @@ public class CargaFieldsBBG {
 		reply= (SDMJobField)_eventQuery.uniqueResult();
 		if (reply==null){
 			reply = new SDMJobField();
-			System.out.println("DEBUG: Nuevo field");
-		} else {
-			System.out.println("DEBUG: Actualiza field");
 		}
 		return reply;
 	}

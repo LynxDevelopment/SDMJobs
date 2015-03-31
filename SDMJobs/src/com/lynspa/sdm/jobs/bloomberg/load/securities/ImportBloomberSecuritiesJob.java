@@ -10,7 +10,7 @@ import org.hibernate.StatelessSession;
 import com.lynxspa.exception.FPMException;
 import com.lynxspa.exception.dict.BasicErrorDict;
 
-public class ImportBlooomberSecuritiesJob {
+public class ImportBloomberSecuritiesJob {
 	
 	
 	public String importBloombergSecurities(Session _session,StatelessSession statelessSession, File _file, String _user, String _locale) throws FPMException{
