@@ -10,7 +10,7 @@ import org.hibernate.StatelessSession;
 import com.lynxspa.exception.FPMException;
 import com.lynxspa.exception.dict.BasicErrorDict;
 
-public class ImportBlooomberFieldsJob {
+public class ImportBloombergFieldsJob {
 	
 	
 	public String importBloombergFields(Session _session,StatelessSession statelessSession, File _file, String _user, String _locale) throws FPMException{
@@ -20,7 +20,7 @@ public class ImportBlooomberFieldsJob {
 		File fileTemp = null;
 		try{
 			
-			CargaFieldsBBG process = new CargaFieldsBBG ();
+			LoadFieldsBBG process = new LoadFieldsBBG ();
 			fileTemp = new File(_file.getAbsolutePath()+".tmp");
 			_file.renameTo(fileTemp);
 			process.loadFieldsFromFile(fileTemp, _session, statelessSession, _user);

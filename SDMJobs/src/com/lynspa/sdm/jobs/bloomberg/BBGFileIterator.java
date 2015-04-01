@@ -16,9 +16,11 @@ public class BBGFileIterator implements Iterator {
 
 	private final String STARTOFDATA = "START-OF-DATA";
 	private final String ENDOFDATA = "END-OF-DATA";
+	private final String HEADER = "HEADER";
 	
 	private String nextLine = null;
 	private BufferedReader buffer = null;
+	private boolean header = false;
 	
 	public BBGFileIterator(File file) {
 		try {
@@ -33,8 +35,15 @@ public class BBGFileIterator implements Iterator {
 		this.buffer = buffer;
 		try {
 			String line = buffer.readLine();
-			while(!line.equals(STARTOFDATA))
+			while(!line.equals(STARTOFDATA)){
+				if(line.startsWith(HEADER)){
+					if(line.endsWith("yes"))
+						header = true;
+				}
 				line = buffer.readLine();
+			}
+			if(header)
+				buffer.readLine();
 			this.nextLine = this.buffer.readLine();
 		} catch (IOException e) {
 			this.nextLine = null;

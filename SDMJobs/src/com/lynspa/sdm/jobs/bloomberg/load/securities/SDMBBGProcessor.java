@@ -138,8 +138,6 @@ public class SDMBBGProcessor implements ISDMSourceProcessor {
 		if(fields == null)
 			fields = getFields(statelessSession);
 
-		
-		
 		List<SDMValue> out = new ArrayList<SDMValue>();
 
 		StringTokenizer stTokens = new StringTokenizer(row.getValue(),BBG_DELIM);

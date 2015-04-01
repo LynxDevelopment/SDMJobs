@@ -21,7 +21,7 @@ import com.lynxspa.entities.jobs.SDMJobField;
 import com.lynxspa.entities.jobs.SDMJobType;
 import com.lynxspa.hbt.utils.HibernateUtils;
 
-public class CargaFieldsBBG {
+public class LoadFieldsBBG {
 
 	/**
 	 * @param args
@@ -32,12 +32,13 @@ public class CargaFieldsBBG {
 	
 	public void loadFieldsFromFile(File _file, Session session,  StatelessSession statelessSession, String user) throws IOException, FileNotFoundException{
 	
+		System.out.println("Load fields from file: " + _file.getName());
+		
 		HashMap<String,String> jobData = new HashMap<String, String>();
 		jobData.put("name", "BBGFields");
 		jobData.put("user", user);
 		
 		String path = _file.getAbsolutePath().substring(0,_file.getAbsolutePath().lastIndexOf('\\'));
-		System.out.println("Path:"+path);
 		
 		SDMJobType jobt = SDMUtils.getJobType(session, jobData,path);
 		
@@ -116,9 +117,8 @@ public class CargaFieldsBBG {
 		}catch(Exception e){
 			System.err.println("Error "+e.getMessage());
 		}finally{
-			//TODO descomentar;
-//			HibernateUtils.close(statelessSession);
-//			reader.close();
+			HibernateUtils.close(statelessSession);
+			reader.close();
 		}
 	}
 	

@@ -17,7 +17,7 @@ import com.lynspa.sdm.jobs.bloomberg.load.daos.SDMJobDAO;
 import com.lynspa.sdm.jobs.bloomberg.load.daos.SDMJobTypeDAO;
 import com.lynspa.sdm.jobs.bloomberg.load.daos.SDMRowDAO;
 import com.lynspa.sdm.jobs.bloomberg.load.daos.SDMValueDAO;
-import com.lynspa.sdm.jobs.bloomberg.load.fields.ImportBlooomberFieldsJob;
+import com.lynspa.sdm.jobs.bloomberg.load.fields.ImportBloombergFieldsJob;
 import com.lynspa.sdm.jobs.bloomberg.load.securities.ImportBloomberSecuritiesJob;
 import com.lynxspa.entities.jobs.SDMJob;
 import com.lynxspa.entities.jobs.SDMJobType;
@@ -40,7 +40,7 @@ public class SimpleNormRule {
 		session = sessionFactory.openSession();
 		statelessSession = sessionFactory.openStatelessSession();
 
-		final ImportBlooomberFieldsJob importFields = new ImportBlooomberFieldsJob();
+		final ImportBloombergFieldsJob importFields = new ImportBloombergFieldsJob();
 		File bloombergFields = new File(
 				"H:/GitHub/SDMCore/SDMCore/input/securities/bloomberg/fields/fields.csv");
 		importFields.importBloombergFields(session, statelessSession,

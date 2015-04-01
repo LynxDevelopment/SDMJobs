@@ -22,7 +22,7 @@ import com.lynxspa.sdm.dictionaries.flows.states.StaticStatesSTATICMESSAGEFlow;
 public class SDMJobProcessor {
 
 	static Logger logger = Logger.getLogger(SDMJobProcessor.class.getName());
-	
+
 	private ISDMSourceProcessor processor;
 	private SDMJob job;
 	private int saveInDBEvery;
@@ -32,84 +32,89 @@ public class SDMJobProcessor {
 	private int correctRows;
 	private int failedRows;
 	private String user;
-	
-	public void process(Session _session,StatelessSession statelessSession, File file, String _user, String _locale) throws FileNotFoundException{
-			
-		
-			numRows=0;
-			correctRows=0;
-			failedRows=0;
-			saveInDBEvery=100;
-			user = _user;
-			this.session = _session;
-			this.statelessSession = statelessSession;
-			
-			HashMap<String,String> jobData = new HashMap<String, String>();
-			jobData.put("name", "BBGSecurities");
-			jobData.put("user", _user);
-			
-			job = new SDMJob();
-			if(file.exists()){
-				job.setFile(file.getAbsolutePath());
-			}
-			String path = file.getAbsolutePath().substring(0,file.getAbsolutePath().lastIndexOf('\\'));
-			System.out.println("Path:"+path);
-			job.setJobType(SDMUtils.getJobType(_session, jobData,path));
-			job.setAuditor(new UpdateAuditor(_user)); 
-			
 
-			processor = new SDMBBGProcessor(file, SDMUtils.getState(_session, StaticStatesSTATICMESSAGEFlow.PRSD.getId()),user);
-			processStart();
-	}
-	
-	
-	
-	
-	public boolean processStart() throws FileNotFoundException{
-		logger.debug("START PROCESS");
+	public void process(Session _session, StatelessSession statelessSession,
+			File file, String _user, String _locale)
+			throws Exception {
+
+		numRows = 0;
+		correctRows = 0;
+		failedRows = 0;
+		saveInDBEvery = 100;
+		user = _user;
+		this.session = _session;
+		this.statelessSession = statelessSession;
+
+		System.out.println("Load security file from file: " + file.getName());
 		
+		HashMap<String, String> jobData = new HashMap<String, String>();
+		jobData.put("name", "BBGSecurities");
+		jobData.put("user", _user);
+
+		job = new SDMJob();
+		if (file.exists()) {
+			job.setFile(file.getAbsolutePath());
+		}
+		String path = file.getAbsolutePath().substring(0,
+				file.getAbsolutePath().lastIndexOf('\\'));
+		job.setJobType(SDMUtils.getJobType(_session, jobData, file.getName()));
+		job.setAuditor(new UpdateAuditor(_user));
+
+		processor = new SDMBBGProcessor(file, SDMUtils.getState(_session,
+				StaticStatesSTATICMESSAGEFlow.PRSD.getId()), user);
+		if(job.getJobType() != null)
+			processStart();
+		else {
+			logger.error("Load Error: can not process because there is not JobType in file: " + file.getName());
+			//TODO posilidad de afinar la exception;
+			throw new Exception("Load Error: can not process because there is not JobType in file: " + file.getName());
+		}
+	}
+
+	public boolean processStart() throws FileNotFoundException {
+		logger.debug("START PROCESS");
+
 		boolean result = true;
 		SDMJobDAO jobDao = new SDMJobDAO();
-		
-		
+
 		try {
 			jobDao.persist(job, statelessSession);
-			
-			if(saveInDBEvery == 0){
+
+			if (saveInDBEvery == 0) {
 				saveInDBEvery = 1;
 			}
-			
-			saveRowsAndValues ();
+
+			saveRowsAndValues();
 			updateJob();
-		}catch(Exception e){
-			System.out.println("Error "+e);
-		}finally{
-			//finalizeProcess();
+		} catch (Exception e) {
+			System.out.println("Error " + e);
+		} finally {
+			// finalizeProcess();
 		}
-		
+
 		return result;
 	}
-	
-	private void finalizeProcess(){
-		try{
+
+	private void finalizeProcess() {
+		try {
 			System.out.println("Cerrando Sesiones");
-			if(!statelessSession.connection().isClosed())
+			if (!statelessSession.connection().isClosed())
 				statelessSession.close();
-			if(session.isOpen())
+			if (session.isOpen())
 				session.close();
 			System.out.println("Cerradas");
-		}catch(Exception e){
-			System.err.println("Error cerrando sesiones"+e.getMessage());
+		} catch (Exception e) {
+			System.err.println("Error cerrando sesiones" + e.getMessage());
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void saveRowsAndValues() throws FileNotFoundException {
 		int count = 0;
 		List<SDMValue> values = new ArrayList<SDMValue>();
 		long processingTime = 0l;
 		long processingTimeCommit = 0l;
-		
+
 		if (processor.getFile().exists()) {
 			processingTime = System.currentTimeMillis();
 			try {
@@ -122,18 +127,22 @@ public class SDMJobProcessor {
 						row.setJob(job);
 						HibernateUtils.customSave(statelessSession, row, user);
 
-						values.addAll(processor.getValues(row, statelessSession));
+						values.addAll(processor
+								.getValues(row, statelessSession));
 						if (values.size() > 0) {
 							for (SDMValue value : values) {
-								HibernateUtils.customSave(statelessSession,	value, user);
+								HibernateUtils.customSave(statelessSession,
+										value, user);
 							}
 						}
 						if (count == saveInDBEvery) {
-							processingTimeCommit = processingTimeCommit - System.currentTimeMillis();
-							System.out.println("Tiempo en insertar 100" + processingTimeCommit);
+							processingTimeCommit = processingTimeCommit
+									- System.currentTimeMillis();
+							System.out.println("Tiempo en insertar 100"
+									+ processingTimeCommit);
 							HibernateUtils.commitTransaction(statelessSession);
 							HibernateUtils.beguinTransaction(statelessSession);
-							count=0;
+							count = 0;
 							processingTimeCommit = System.currentTimeMillis();
 						}
 						correctRows++;
@@ -159,14 +168,14 @@ public class SDMJobProcessor {
 					"El archivo de carga no existe para el job: " + job.getId());
 		}
 	}
-	
-	private void updateJob (){
-		
+
+	private void updateJob() {
+
 		job.setNumFailed(failedRows);
 		job.setNumRecords(numRows);
 		job.setNumSuccess(correctRows);
 		SDMJobDAO jobDao = new SDMJobDAO();
-		jobDao.update(job,statelessSession);
-		
+		jobDao.update(job, statelessSession);
+
 	}
 }
