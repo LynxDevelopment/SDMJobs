@@ -73,6 +73,7 @@ public class SDMJobProcessor {
 
 	public boolean processStart() throws FileNotFoundException {
 		logger.debug("START PROCESS");
+		System.out.println("START PROCESS");
 
 		boolean result = true;
 		SDMJobDAO jobDao = new SDMJobDAO();
@@ -158,6 +159,8 @@ public class SDMJobProcessor {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			
+			job.setDateFormat(processor.getDateFormat());
 			processingTime = System.currentTimeMillis() - processingTime;
 			System.out.println("Tiempo en guardar rows y values: "
 					+ processingTime + " para " + numRows + " y " + failedRows
