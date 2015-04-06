@@ -311,7 +311,6 @@ public class BeanShellStaticDataNormalizeProcessor implements
 			reply.setGeneratedScript(script.toString());
 
 			logger.info("_scripts string: " + script.toString());
-			logger.info("_scripts replyy: " + reply);
 
 			// Evaluate Script
 			outputStream = new ByteArrayOutputStream();
@@ -323,8 +322,6 @@ public class BeanShellStaticDataNormalizeProcessor implements
 				reply = recoverDataFromScriptContext(reply, _scripts,
 						beanshellContext);
 
-				logger.info("_scripts final: " + reply);
-
 			} catch (Exception e) {
 				reply.setException(e);
 				logger.error(e);
@@ -334,7 +331,7 @@ public class BeanShellStaticDataNormalizeProcessor implements
 			stream.close();
 		}
 
-		logger.info("_scripts return: " + reply);
+		logger.info("_scripts return: " + reply.getOutput());
 
 		return reply;
 	}
@@ -410,6 +407,9 @@ public class BeanShellStaticDataNormalizeProcessor implements
 							logger.info("result isin " + result.getIsin());
 
 							AssetDetails assetDetails = result.getDetail();
+							
+							logger.info("asset_details: " + assetDetails.getDynamicTable().toString());
+							
 							HibernateUtils.customSave(statelessSession,
 									assetDetails, _user);
 							SecurityAsset asset = new SecurityAsset(_user);
