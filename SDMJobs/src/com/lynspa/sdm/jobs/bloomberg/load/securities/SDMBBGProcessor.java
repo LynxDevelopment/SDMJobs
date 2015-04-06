@@ -46,6 +46,7 @@ public class SDMBBGProcessor implements ISDMSourceProcessor {
 	private BBGFileIterator fileIterator = null;
 	private State state;
 	private String user;
+	private String dateFormat;
 	
 	public SDMBBGProcessor (File fileToProcess){
 		this.file=fileToProcess;
@@ -150,6 +151,10 @@ public class SDMBBGProcessor implements ISDMSourceProcessor {
 			value.setRow(row);
 			sValue = stTokens.nextToken();
 			value.setValue(sValue);
+			if(fields.get(i) != null)
+				System.out.println("DEBUG: setting field: " + fields.get(i).getName() + " with value: " + sValue);
+			else
+				System.out.println("DEBUG: setting field: null with value: " + sValue);
 			value.setJobField(fields.get(i));
 			if (fields.get(i)!=null){
 				if(fields.get(i).getName().equals("TICKER")){
@@ -189,7 +194,6 @@ public class SDMBBGProcessor implements ISDMSourceProcessor {
 		return file;
 	}
 
-	
 	public State getState() {
 		return state;
 	}
@@ -197,6 +201,10 @@ public class SDMBBGProcessor implements ISDMSourceProcessor {
 		this.state = state;
 	}
 	
-	
-
+	public String getDateFormat(){
+		return dateFormat;
+	}
+	public void setDateFormat(String dateFormat){
+		this.dateFormat = dateFormat;
+	}
 }

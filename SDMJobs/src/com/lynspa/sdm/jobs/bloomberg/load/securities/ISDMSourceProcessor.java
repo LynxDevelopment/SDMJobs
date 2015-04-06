@@ -22,5 +22,6 @@ public interface ISDMSourceProcessor {
 	public void setFile(File file);
 	public File getFile();
 	public void setState(State state);
+	public String getDateFormat();
 
 }

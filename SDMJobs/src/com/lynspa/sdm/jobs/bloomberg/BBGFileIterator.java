@@ -17,8 +17,10 @@ public class BBGFileIterator implements Iterator {
 	private final String STARTOFDATA = "START-OF-DATA";
 	private final String ENDOFDATA = "END-OF-DATA";
 	private final String HEADER = "HEADER";
+	private final String DATEFORMAT = "DATEFORMAT";
 	
 	private String nextLine = null;
+	private String dateFormat = null;
 	private BufferedReader buffer = null;
 	private boolean header = false;
 	
@@ -39,6 +41,11 @@ public class BBGFileIterator implements Iterator {
 				if(line.startsWith(HEADER)){
 					if(line.endsWith("yes"))
 						header = true;
+				}
+				if(line.startsWith(DATEFORMAT)){
+					line.replaceAll("m", "M");
+					String [] stringSplit = line.split("=");
+					dateFormat = stringSplit[1];
 				}
 				line = buffer.readLine();
 			}
