@@ -200,7 +200,7 @@ public class BeanShellStaticDataNormalizeProcessor implements
 							+ row.getId() + " no tiene field asociado");
 				} else {
 					fields.add(new StaticMessageField(sdmValue.getJobField(),
-							sdmValue.getValue()));
+							sdmValue.getValue(),row.getJob().getDateFormat()));
 					logger.debug("El valor " + sdmValue.getId() + " del row "
 							+ row.getId() + " tiene field "
 							+ sdmValue.getJobField() + " "
@@ -441,9 +441,9 @@ public class BeanShellStaticDataNormalizeProcessor implements
 									StaticStatesSTATICMESSAGEFlow.NORM,
 									_session));
 
-							System.out.println("session: " + statelessSession);
-							System.out.println("Row: " + row);
-							System.out.println("User: " + _user);
+//							System.out.println("session: " + statelessSession);
+//							System.out.println("Row: " + row);
+//							System.out.println("User: " + _user);
 
 							logger.debug("session: " + statelessSession
 									+ "Row: " + row + "User: " + _user);
